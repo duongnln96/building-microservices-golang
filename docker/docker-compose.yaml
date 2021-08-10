@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  product-api:
+    image: "duongtomho/productapi:latest"
+    restart: always
+    ports:
+      - "9090:8080"
+    environment:
+      SEVERVER_HOST: productapi
+      SEVERVER_PORT: 9090
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: products
+
+    volumes:
+      - ../product-api/:/app
+
+

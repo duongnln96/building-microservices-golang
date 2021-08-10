@@ -1,0 +1,14 @@
+productapi:
+  host: "productapi"
+  port: 8080
+  readtimeout: 10ms
+  writetimeout: 600ms
+
+psql:
+  host: "psql"
+  port: 5432
+  username: postgres
+  password: postgres
+  dbname: product
+  querytimeout: 1s
+  healthcheck_interval: 20s
