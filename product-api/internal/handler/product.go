@@ -3,7 +3,9 @@ package handler
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/duongnln96/building-microservices-golang/product-api/config"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/data"
@@ -44,8 +46,8 @@ func (p *productHandler) StartServerLock() {
 
 	e.Use(logger.ZapLogger(p.log))
 
-	e.POST("/", p.CreateProduct)
-	e.GET("/", p.GetProducts)
+	e.POST("/products", p.CreateProduct)
+	e.GET("/products", p.GetProducts)
 	e.PUT("/products/:id", p.UpdateProduct)
 
 	err := e.Start(fmt.Sprintf(":%d", p.cfg.Server.Port))
@@ -60,8 +62,12 @@ func (p *productHandler) CreateProduct(c echo.Context) error {
 	defer c.Request().Body.Close()
 	err := product.FromJSON(c.Request().Body)
 	if err != nil {
-		p.log.Infof("Failed to read request body for product %v", err)
-		return c.String(http.StatusInternalServerError, "")
+		if err == io.EOF {
+			return c.String(http.StatusBadRequest, "")
+		} else {
+			p.log.Infof("Failed to read request body for product %v", err)
+			return c.String(http.StatusInternalServerError, "")
+		}
 	}
 
 	data.AddProduct(&product)
@@ -76,8 +82,28 @@ func (p *productHandler) GetProducts(c echo.Context) error {
 }
 
 func (p *productHandler) UpdateProduct(c echo.Context) error {
-	id := c.Param("id")
-	p.log.Infof("id: %s", id)
+	param := c.Param("id")
+	id, err := strconv.Atoi(param)
+	if err != nil {
+		p.log.Errorf("Cannot convert param string %+v", err)
+	}
+
+	prod := data.Product{}
+	err = prod.FromJSON(c.Request().Body)
+	if err != nil {
+		if err == io.EOF {
+			return c.String(http.StatusBadRequest, "")
+		} else {
+			p.log.Infof("Failed to read request body for product %v", err)
+			return c.String(http.StatusInternalServerError, "")
+		}
+	}
+	defer c.Request().Body.Close()
+
+	err = data.UpdateProduct(id, &prod)
+	if err == data.ErrProductNotFound {
+		return c.String(http.StatusNotFound, data.ErrProductNotFound.Error())
+	}
 
 	return c.String(http.StatusOK, "")
 }

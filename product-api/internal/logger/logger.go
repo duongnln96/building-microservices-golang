@@ -25,11 +25,11 @@ func ZapLogger(log *zap.SugaredLogger) echo.MiddlewareFunc {
 			n := res.Status
 			switch {
 			case n >= 500:
-				log.With(zap.Error(err)).Errorf("Server error %s", logStr)
+				log.Debugf("Server error %s", logStr)
 			case n >= 400:
-				log.With(zap.Error(err)).Warnf("Client error %s", logStr)
+				log.Debugf("Client error %s", logStr)
 			case n >= 300:
-				log.Infof("Redirection %s", logStr)
+				log.Debugf("Redirection %s", logStr)
 			default:
 				log.Infof("Success %s", logStr)
 			}
