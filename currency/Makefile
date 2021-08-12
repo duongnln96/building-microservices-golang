@@ -1,4 +1,6 @@
 .PHONY: protos
 
 protos:
-	protoc -I ./protos/ ./protos/currency.proto --go_out=plugins=grpc:./protos/currency
+	protoc -I $(PWD)/protos/ $(PWD)/protos/currency.proto \
+    --go_out=$(PWD)/protos \
+    --go-grpc_out=$(PWD)/protos

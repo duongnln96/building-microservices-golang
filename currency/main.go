@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/duongnln96/building-microservices-golang/currency/cmd"
 
 func main() {
-	fmt.Println("Hello world")
+	cmd.Execute()
 }
