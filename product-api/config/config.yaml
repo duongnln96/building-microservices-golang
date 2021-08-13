@@ -4,6 +4,10 @@ productapi:
   readtimeout: 10ms
   writetimeout: 600ms
 
+currency:
+  host: "localhost"
+  port: 9092
+
 psql:
   host: "psql"
   port: 5432

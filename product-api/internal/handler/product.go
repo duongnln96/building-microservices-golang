@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	pb "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
 	"github.com/duongnln96/building-microservices-golang/product-api/config"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/data"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/utils"
@@ -25,22 +26,25 @@ type ProductHandlerI interface {
 }
 
 type ProductHandlerDeps struct {
-	Ctx context.Context
-	Log *zap.SugaredLogger
-	Cfg *config.AppConfig
+	Ctx            context.Context
+	Log            *zap.SugaredLogger
+	Cfg            *config.AppConfig
+	CurrencyClient pb.CurrencyClient
 }
 
 type productHandler struct {
-	ctx context.Context
-	log *zap.SugaredLogger
-	cfg *config.AppConfig
+	ctx            context.Context
+	log            *zap.SugaredLogger
+	cfg            *config.AppConfig
+	currencyClient pb.CurrencyClient
 }
 
 func NewProductHandler(deps ProductHandlerDeps) ProductHandlerI {
 	return &productHandler{
-		ctx: deps.Ctx,
-		log: deps.Log,
-		cfg: deps.Cfg,
+		ctx:            deps.Ctx,
+		log:            deps.Log,
+		cfg:            deps.Cfg,
+		currencyClient: deps.CurrencyClient,
 	}
 }
 
@@ -88,6 +92,21 @@ func (p *productHandler) getSingleProduct(c echo.Context) error {
 	if err != nil {
 		return p.responseErrCode(c, http.StatusNotFound, data.ErrProductNotFound.Error())
 	}
+
+	// Get the exchange
+	rateRequest := pb.RateRequest{
+		Base:        pb.Currencies(pb.Currencies_value["USA"]),
+		Destination: pb.Currencies(pb.Currencies_value["VND"]),
+	}
+	cRate, err := p.currencyClient.GetRate(p.ctx, &rateRequest)
+	if err != nil {
+		p.log.Errorf("Cannot get rate %+v", err)
+		return p.responseErrCode(c, http.StatusInternalServerError, err.Error())
+	}
+
+	p.log.Debugf("Currency Rate %+v", cRate)
+	prod.Price = prod.Price * cRate.Rate
+
 	return p.responseData(c, prod)
 }
 

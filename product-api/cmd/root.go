@@ -6,10 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	pb "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
 	"github.com/duongnln96/building-microservices-golang/product-api/config"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/handler"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 var log *zap.SugaredLogger
@@ -21,11 +23,21 @@ var rootCmd = &cobra.Command{
 		appConfig := config.GetConfig()
 		log.Infof("Run Product REST APIs with config %+v", appConfig)
 
+		// Create the connection to curreny service
+		// TODO: get config
+		conn, err := grpc.Dial("localhost:9092", grpc.WithInsecure())
+		if err != nil {
+			log.Panicf("Cannot create gRPC connection %+v", err)
+		}
+		defer conn.Close()
+		cc := pb.NewCurrencyClient(conn)
+
 		ph := handler.NewProductHandler(
 			handler.ProductHandlerDeps{
-				Ctx: globalContex,
-				Log: log,
-				Cfg: appConfig,
+				Ctx:            globalContex,
+				Log:            log,
+				Cfg:            appConfig,
+				CurrencyClient: cc,
 			},
 		)
 
