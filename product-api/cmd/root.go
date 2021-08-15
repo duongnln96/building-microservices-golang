@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Create the connection to curreny service
 		// TODO: get config
-		conn, err := grpc.Dial("localhost:9092", grpc.WithInsecure())
+		conn, err := grpc.Dial("currency:9092", grpc.WithInsecure())
 		if err != nil {
 			log.Panic("Cannot create gRPC connection")
 		}

@@ -2,14 +2,14 @@ FROM golang:1.16-alpine
 
 WORKDIR /app
 
+COPY . ./
+
 # COPY go.mod ./
 # COPY go.sum ./
 # RUN go mod download
 
-COPY . ./
-
 RUN go build .
 
-EXPOSE 8080
+EXPOSE 9092
 
-CMD ["go", "run", "."]
+CMD ["go", "run", "." ]
