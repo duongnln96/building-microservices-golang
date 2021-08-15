@@ -7,8 +7,8 @@ import (
 )
 
 type CurrencyConfig struct {
-	Host string `mapstructure:"SVC_HOST_NAME"`
-	Port int    `mapstructure:"SVC_PORT"`
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
 }
 
 var values CurrencyConfig
