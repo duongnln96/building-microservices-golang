@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/duongnln96/building-microservices-golang/currency/config"
 	"github.com/duongnln96/building-microservices-golang/currency/internal/data"
 	"github.com/duongnln96/building-microservices-golang/currency/internal/server"
 	pb "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
@@ -34,7 +35,8 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		log.Info("Start gRPC application")
+		currencyConfig := config.GetConfig()
+		log.Infof("Start gRPC application with config: %+v", currencyConfig)
 		gs := grpc.NewServer()
 		c := server.NewCurrency(
 			server.CurrencyDeps{
@@ -50,7 +52,7 @@ var rootCmd = &cobra.Command{
 		reflection.Register(gs)
 
 		// create a TCP socket for inbound server connections
-		l, err := net.Listen("tcp", fmt.Sprintf(":%d", 9092))
+		l, err := net.Listen("tcp", fmt.Sprintf(":%d", currencyConfig.Port))
 		if err != nil {
 			log.Error("Unable to create listener", "error", err)
 			os.Exit(1)
