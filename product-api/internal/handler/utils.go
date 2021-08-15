@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	protos "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/data"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/utils"
 	"github.com/labstack/echo"
@@ -23,6 +24,11 @@ func (p *productHandler) getProductIDParam(c echo.Context) int {
 	return id
 }
 
+func (p *productHandler) getProductQuery(c echo.Context) string {
+	currency := c.QueryParam("currency")
+	return currency
+}
+
 // getProductData returns the product data from the URL
 func (p *productHandler) getProductData(c echo.Context, prod *data.Product) error {
 	err := utils.FromJSON(prod, c.Request().Body)
@@ -32,6 +38,16 @@ func (p *productHandler) getProductData(c echo.Context, prod *data.Product) erro
 	}
 	defer c.Request().Body.Close()
 	return nil
+}
+
+func (p *productHandler) getRate(currency string) (float64, error) {
+	rateRequest := protos.RateRequest{
+		Base:        protos.Currencies(protos.Currencies_value["EUR"]),
+		Destination: protos.Currencies(protos.Currencies_value[currency]),
+	}
+
+	rate, err := p.cc.GetRate(p.ctx, &rateRequest)
+	return float64(rate.Rate), err
 }
 
 func (p *productHandler) responseData(c echo.Context, i interface{}) error {

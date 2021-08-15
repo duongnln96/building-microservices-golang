@@ -6,8 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	pb "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
+	protos "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
 	"github.com/duongnln96/building-microservices-golang/product-api/config"
+	"github.com/duongnln96/building-microservices-golang/product-api/internal/data"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/handler"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -30,18 +31,27 @@ var rootCmd = &cobra.Command{
 			log.Panicf("Cannot create gRPC connection %+v", err)
 		}
 		defer conn.Close()
-		cc := pb.NewCurrencyClient(conn)
+		cc := protos.NewCurrencyClient(conn)
 
-		ph := handler.NewProductHandler(
-			handler.ProductHandlerDeps{
-				Ctx:            globalContex,
-				Log:            log,
-				Cfg:            appConfig,
-				CurrencyClient: cc,
+		// Create db connection and product handler
+		productDB := data.NewProductDB(
+			data.ProductsDBDeps{
+				Log: log,
+				Ctx: globalContex,
 			},
 		)
 
-		ph.StartServerLock()
+		productHandler := handler.NewProductHandler(
+			handler.ProductHandlerDeps{
+				Ctx: globalContex,
+				Log: log,
+				Cfg: appConfig,
+				Db:  productDB,
+				Cc:  cc,
+			},
+		)
+
+		productHandler.StartServerLock()
 	},
 }
 
@@ -60,7 +70,7 @@ func init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func(log *zap.SugaredLogger) {
 		sig := <-signals
-		log.Infof("Got signal: %v+", sig)
+		log.Infof("Got signal: %+v", sig)
 		cancel()
 		os.Exit(0)
 	}(log)

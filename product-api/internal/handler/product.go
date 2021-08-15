@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	pb "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
+	protos "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
 	"github.com/duongnln96/building-microservices-golang/product-api/config"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/data"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/utils"
@@ -26,25 +26,28 @@ type ProductHandlerI interface {
 }
 
 type ProductHandlerDeps struct {
-	Ctx            context.Context
-	Log            *zap.SugaredLogger
-	Cfg            *config.AppConfig
-	CurrencyClient pb.CurrencyClient
+	Ctx context.Context
+	Log *zap.SugaredLogger
+	Cfg *config.AppConfig
+	Db  data.ProductsDBI
+	Cc  protos.CurrencyClient
 }
 
 type productHandler struct {
-	ctx            context.Context
-	log            *zap.SugaredLogger
-	cfg            *config.AppConfig
-	currencyClient pb.CurrencyClient
+	ctx context.Context
+	log *zap.SugaredLogger
+	cfg *config.AppConfig
+	db  data.ProductsDBI
+	cc  protos.CurrencyClient
 }
 
 func NewProductHandler(deps ProductHandlerDeps) ProductHandlerI {
 	return &productHandler{
-		ctx:            deps.Ctx,
-		log:            deps.Log,
-		cfg:            deps.Cfg,
-		currencyClient: deps.CurrencyClient,
+		ctx: deps.Ctx,
+		log: deps.Log,
+		cfg: deps.Cfg,
+		db:  deps.Db,
+		cc:  deps.Cc,
 	}
 }
 
@@ -74,40 +77,65 @@ func (p *productHandler) createProduct(c echo.Context) error {
 		return p.responseErrCode(c, http.StatusInternalServerError, "Failed to read request body")
 	}
 
-	data.AddProduct(&prod)
+	p.db.AddProduct(&prod)
 	return p.responseStatusOK(c)
 }
 
 // GET /products
 func (p *productHandler) getAllProducts(c echo.Context) error {
-	products := data.GetProducts()
-	return p.responseData(c, products)
+	currency := p.getProductQuery(c)
+
+	products, err := p.db.GetProducts()
+	if err != nil {
+		return p.responseErrCode(c, http.StatusInternalServerError, err.Error())
+	}
+
+	if currency == "" {
+		return p.responseData(c, products)
+	}
+
+	rate, err := p.getRate(currency)
+	if err != nil {
+		return p.responseErrCode(c, http.StatusInternalServerError, err.Error())
+	}
+
+	p.log.Infof("Currency Rate %+v", rate)
+
+	prodsWithRate := data.Products{}
+	for _, prod := range products {
+		newProd := *prod
+		newProd.Price = newProd.Price * rate
+		prodsWithRate = append(prodsWithRate, &newProd)
+	}
+
+	return p.responseData(c, prodsWithRate)
 }
 
 // GET /product/:id
 func (p *productHandler) getSingleProduct(c echo.Context) error {
 	id := p.getProductIDParam(c)
+	currency := p.getProductQuery(c)
 
-	prod, err := data.GetProductByID(id)
+	prod, err := p.db.GetProductByID(id)
 	if err != nil {
 		return p.responseErrCode(c, http.StatusNotFound, data.ErrProductNotFound.Error())
 	}
 
-	// Get the exchange
-	rateRequest := pb.RateRequest{
-		Base:        pb.Currencies(pb.Currencies_value["USA"]),
-		Destination: pb.Currencies(pb.Currencies_value["VND"]),
+	if currency == "" {
+		return p.responseData(c, prod)
 	}
-	cRate, err := p.currencyClient.GetRate(p.ctx, &rateRequest)
+
+	rate, err := p.getRate(currency)
 	if err != nil {
-		p.log.Errorf("Cannot get rate %+v", err)
 		return p.responseErrCode(c, http.StatusInternalServerError, err.Error())
 	}
 
-	p.log.Debugf("Currency Rate %+v", cRate)
-	prod.Price = prod.Price * cRate.Rate
+	p.log.Infof("Currency Rate %+v", rate)
 
-	return p.responseData(c, prod)
+	prodWithRate := *prod
+	prodWithRate.Price = prodWithRate.Price * rate
+
+	return p.responseData(c, prodWithRate)
 }
 
 // PUT /product/:id
@@ -120,7 +148,7 @@ func (p *productHandler) updateProduct(c echo.Context) error {
 		return p.responseErrCode(c, http.StatusInternalServerError, "Failed to read request body")
 	}
 
-	err = data.UpdateProduct(id, &prod)
+	err = p.db.UpdateProduct(id, &prod)
 	if err == data.ErrProductNotFound {
 		return p.responseErrCode(c, http.StatusNotFound, data.ErrProductNotFound.Error())
 	}
@@ -132,7 +160,7 @@ func (p *productHandler) updateProduct(c echo.Context) error {
 func (p *productHandler) deleteProduct(c echo.Context) error {
 	id := p.getProductIDParam(c)
 
-	err := data.DeleteProduct(id)
+	err := p.db.DeleteProduct(id)
 	if err == data.ErrProductNotFound {
 		return p.responseErrCode(c, http.StatusNotFound, data.ErrProductNotFound.Error())
 	} else if err != nil {
