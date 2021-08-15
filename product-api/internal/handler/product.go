@@ -13,9 +13,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// ErrInvalidProductPath is an error message when the product path is not valid
-var ErrInvalidProductPath = fmt.Errorf("Invalid Path, path should be /products/[id]")
-
 // GenericError is a generic error message returned by a server
 type GenericError struct {
 	Message string `json:"message"`

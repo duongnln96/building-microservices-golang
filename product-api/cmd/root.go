@@ -21,17 +21,17 @@ var globalContex context.Context
 var rootCmd = &cobra.Command{
 	Use: "",
 	Run: func(cmd *cobra.Command, args []string) {
-		appConfig := config.GetConfig()
-		log.Infof("Run Product REST APIs with config %+v", appConfig)
-
 		// Create the connection to curreny service
 		// TODO: get config
 		conn, err := grpc.Dial("localhost:9092", grpc.WithInsecure())
 		if err != nil {
-			log.Panicf("Cannot create gRPC connection %+v", err)
+			log.Panic("Cannot create gRPC connection")
 		}
 		defer conn.Close()
 		cc := protos.NewCurrencyClient(conn)
+
+		appConfig := config.GetConfig()
+		log.Infof("Run Product REST APIs with config %+v", appConfig)
 
 		// Create db connection and product handler
 		productDB := data.NewProductDB(
