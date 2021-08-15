@@ -14,8 +14,14 @@ type ServerConfig struct {
 	WriteTimeout time.Duration `mapstructure:"writetimeout"`
 }
 
+type CurrencyService struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+}
+
 type AppConfig struct {
-	Server ServerConfig `mapstructure:"productapi"`
+	Server      ServerConfig    `mapstructure:"productapi"`
+	CurrService CurrencyService `mapstructure:"currency"`
 }
 
 var values AppConfig

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,17 +22,16 @@ var globalContex context.Context
 var rootCmd = &cobra.Command{
 	Use: "",
 	Run: func(cmd *cobra.Command, args []string) {
+		appConfig := config.GetConfig()
+		log.Infof("Starting Product Service with config %+v", appConfig)
+
 		// Create the connection to curreny service
-		// TODO: get config
-		conn, err := grpc.Dial("currency:9092", grpc.WithInsecure())
+		conn, err := grpc.Dial(fmt.Sprintf("%s:%d", appConfig.CurrService.Host, appConfig.CurrService.Port), grpc.WithInsecure())
 		if err != nil {
 			log.Panic("Cannot create gRPC connection")
 		}
 		defer conn.Close()
 		cc := protos.NewCurrencyClient(conn)
-
-		appConfig := config.GetConfig()
-		log.Infof("Run Product REST APIs with config %+v", appConfig)
 
 		// Create db connection and product handler
 		productDB := data.NewProductDB(
