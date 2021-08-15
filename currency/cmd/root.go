@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/duongnln96/building-microservices-golang/currency/internal/data"
 	"github.com/duongnln96/building-microservices-golang/currency/internal/server"
 	pb "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
 	"github.com/spf13/cobra"
@@ -22,12 +23,24 @@ var globalContex context.Context
 var rootCmd = &cobra.Command{
 	Use: "",
 	Run: func(cmd *cobra.Command, args []string) {
+		cr, err := data.NewCurrencyData(
+			data.CurrencyRatesDeps{
+				Log: log,
+				Ctx: globalContex,
+			},
+		)
+		if err != nil {
+			log.Panicf("Cannot collect the data; %+v", err)
+			os.Exit(1)
+		}
+
 		log.Info("Start gRPC application")
 		gs := grpc.NewServer()
 		c := server.NewCurrency(
 			server.CurrencyDeps{
 				Log: log,
 				Ctx: globalContex,
+				Db:  cr,
 			},
 		)
 
