@@ -52,6 +52,7 @@ func (p *productHandler) StartServerLock() {
 	e := echo.New()
 
 	e.Use(utils.ZapLogger(p.log))
+	e.Validator = data.NewValidation()
 
 	e.POST("/products", p.createProduct)
 	e.GET("/products", p.getAllProducts)
@@ -69,9 +70,12 @@ func (p *productHandler) StartServerLock() {
 func (p *productHandler) createProduct(c echo.Context) error {
 	prod := data.Product{}
 
-	err := p.getProductData(c, &prod)
-	if err != nil {
-		return p.responseErrCode(c, http.StatusInternalServerError, "Failed to read request body")
+	if err := c.Bind(&prod); err != nil {
+		return p.responseErrCode(c, http.StatusBadRequest, fmt.Sprintf("Bind: %s", err.Error()))
+	}
+
+	if err := c.Validate(prod); err != nil {
+		return p.responseErrCode(c, http.StatusBadRequest, fmt.Sprintf("Validation: %s", err.Error()))
 	}
 
 	p.db.AddProduct(&prod)
@@ -140,13 +144,15 @@ func (p *productHandler) updateProduct(c echo.Context) error {
 	id := p.getProductIDParam(c)
 
 	prod := data.Product{}
-	err := p.getProductData(c, &prod)
-	if err != nil {
-		return p.responseErrCode(c, http.StatusInternalServerError, "Failed to read request body")
+	if err := c.Bind(&prod); err != nil {
+		return p.responseErrCode(c, http.StatusBadRequest, fmt.Sprintf("Bind: %s", err.Error()))
 	}
 
-	err = p.db.UpdateProduct(id, &prod)
-	if err == data.ErrProductNotFound {
+	if err := c.Validate(prod); err != nil {
+		return p.responseErrCode(c, http.StatusBadRequest, fmt.Sprintf("Validation: %s", err.Error()))
+	}
+
+	if err := p.db.UpdateProduct(id, &prod); err == data.ErrProductNotFound {
 		return p.responseErrCode(c, http.StatusNotFound, data.ErrProductNotFound.Error())
 	}
 
