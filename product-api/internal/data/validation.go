@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // Validation contains

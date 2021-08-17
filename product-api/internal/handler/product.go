@@ -9,7 +9,7 @@ import (
 	"github.com/duongnln96/building-microservices-golang/product-api/config"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/data"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/utils"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 

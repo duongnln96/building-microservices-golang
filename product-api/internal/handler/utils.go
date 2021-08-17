@@ -6,7 +6,7 @@ import (
 
 	protos "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
 	"github.com/duongnln96/building-microservices-golang/product-api/internal/utils"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // getProductIDParam returns the product ID from the URL
