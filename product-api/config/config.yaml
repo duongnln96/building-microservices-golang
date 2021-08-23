@@ -5,7 +5,7 @@ productapi:
   writetimeout: 600ms
 
 currency:
-  host: "currency"
+  host: "localhost"
   port: 9092
 
 psql:
