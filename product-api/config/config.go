@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	tools "github.com/duongnln96/building-microservices-golang/product-api/tools/postgresql"
 	"github.com/spf13/viper"
 )
 
@@ -20,8 +21,9 @@ type CurrencyService struct {
 }
 
 type AppConfig struct {
-	Server      ServerConfig    `mapstructure:"productapi"`
-	CurrService CurrencyService `mapstructure:"currency"`
+	Psql        tools.PsqlConnectorConfig `mapstructure:"psql"`
+	Server      ServerConfig              `mapstructure:"productapi"`
+	CurrService CurrencyService           `mapstructure:"currency"`
 }
 
 var values AppConfig

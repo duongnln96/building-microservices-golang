@@ -24,27 +24,27 @@ type ProductServiceI interface {
 }
 
 type ProductServiceDeps struct {
-	Ctx context.Context
-	Log *zap.SugaredLogger
-	Db  repository.ProductsDBI
+	Ctx  context.Context
+	Log  *zap.SugaredLogger
+	Repo repository.ProductsDBI
 }
 
 type productSerivce struct {
-	ctx context.Context
-	log *zap.SugaredLogger
-	db  repository.ProductsDBI
+	ctx  context.Context
+	log  *zap.SugaredLogger
+	repo repository.ProductsDBI
 }
 
-func NewProductHandler(deps ProductServiceDeps) ProductServiceI {
+func NewProductSerivce(deps ProductServiceDeps) ProductServiceI {
 	return &productSerivce{
-		ctx: deps.Ctx,
-		log: deps.Log,
-		db:  deps.Db,
+		ctx:  deps.Ctx,
+		log:  deps.Log,
+		repo: deps.Repo,
 	}
 }
 
 func (svc *productSerivce) All() (entity.Products, error) {
-	prods, err := svc.db.AllProducts()
+	prods, err := svc.repo.AllProducts()
 	if err != nil {
 		svc.log.Debugf("SVC cannot fetch products %+v", err)
 		return nil, err
@@ -53,7 +53,7 @@ func (svc *productSerivce) All() (entity.Products, error) {
 }
 
 func (svc *productSerivce) FindByID(id int) (*entity.Product, error) {
-	prod, err := svc.db.FindProductByID(id)
+	prod, err := svc.repo.FindProductByID(id)
 	if err != nil {
 		svc.log.Debugf("SVC cannot fetch product %+v", err)
 		return nil, err
@@ -69,7 +69,7 @@ func (svc *productSerivce) Create(p *dto.ProductDTO) error {
 	prod.Price = p.Price
 	prod.SKU = p.SKU
 
-	err := svc.db.CreateProduct(&prod)
+	err := svc.repo.CreateProduct(&prod)
 	if err != nil {
 		svc.log.Debugf("SVC Cannot insert product %+v", err)
 		return err
@@ -86,7 +86,7 @@ func (svc *productSerivce) Update(p *dto.ProductUpdateDTO) error {
 	prod.Price = p.Price
 	prod.SKU = p.SKU
 
-	err := svc.db.UpdateProduct(&prod)
+	err := svc.repo.UpdateProduct(&prod)
 	if err != nil {
 		svc.log.Debugf("SVC Cannot update product %+v", err)
 		return err
@@ -99,7 +99,7 @@ func (svc *productSerivce) Delete(p *dto.ProductUpdateDTO) error {
 	prod := entity.Product{}
 	prod.ID = p.ID
 
-	err := svc.db.DeleteProduct(&prod)
+	err := svc.repo.DeleteProduct(&prod)
 	if err != nil {
 		svc.log.Debugf("SVC Cannot delete product %+v", err)
 		return err

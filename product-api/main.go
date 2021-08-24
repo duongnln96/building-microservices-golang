@@ -14,6 +14,7 @@ import (
 	"github.com/duongnln96/building-microservices-golang/product-api/repository"
 	"github.com/duongnln96/building-microservices-golang/product-api/routes"
 	"github.com/duongnln96/building-microservices-golang/product-api/service"
+	tools "github.com/duongnln96/building-microservices-golang/product-api/tools/postgresql"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -58,18 +59,27 @@ func main() {
 	currency := protos.NewCurrencyClient(conn)
 
 	// Product APIs service
+	psql := tools.NewPsqlConnector(
+		tools.PsqlConnectorDeps{
+			Log: log,
+			Ctx: globalContex,
+			Cfg: appConfig.Psql,
+		},
+	)
+
 	repo := repository.NewProductDB(
 		repository.ProductsDBDeps{
 			Log: log,
 			Ctx: globalContex,
+			DB:  psql,
 		},
 	)
 
-	service := service.NewProductHandler(
+	service := service.NewProductSerivce(
 		service.ProductServiceDeps{
-			Log: log,
-			Ctx: globalContex,
-			Db:  repo,
+			Log:  log,
+			Ctx:  globalContex,
+			Repo: repo,
 		},
 	)
 

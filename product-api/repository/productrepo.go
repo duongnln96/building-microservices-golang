@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/duongnln96/building-microservices-golang/product-api/entity"
+	tools "github.com/duongnln96/building-microservices-golang/product-api/tools/postgresql"
 	"go.uber.org/zap"
 )
 
@@ -20,17 +21,20 @@ type ProductsDBI interface {
 type ProductsDBDeps struct {
 	Log *zap.SugaredLogger
 	Ctx context.Context
+	DB  tools.PsqlConnectorI
 }
 
 type productsDB struct {
 	log *zap.SugaredLogger
 	ctx context.Context
+	db  tools.PsqlConnectorI
 }
 
 func NewProductDB(deps ProductsDBDeps) ProductsDBI {
 	return &productsDB{
 		log: deps.Log,
 		ctx: deps.Ctx,
+		db:  deps.DB,
 	}
 }
 

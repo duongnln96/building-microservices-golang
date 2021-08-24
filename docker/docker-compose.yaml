@@ -1,28 +1,18 @@
 version: "3.8"
 
 services:
-  mongo:
-    image: mongo
+  psql:
+    image: "postgres:10-alpine"
     restart: always
     ports:
-      - "27017:27017"
+      - "5432:5432"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
-      MONGO_INITDB_DATABASE: products
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: product
     volumes:
-      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
-      - ./db:/data/db
-
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
-      ME_CONFIG_MONGODB_URL: mongodb://admin:admin@mongo:27017/
+      - ../product-api/sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./db:/var/lib/postgresql/data
 
   currency:
     image: "duongtomho/currencygrpc:latest"
@@ -36,6 +26,7 @@ services:
     image: "duongtomho/productapi:latest"
     restart: always
     depends_on:
+      - psql
       - currency
     ports:
       - "8080:8080"
