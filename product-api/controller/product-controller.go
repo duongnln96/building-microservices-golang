@@ -50,7 +50,7 @@ func (pc *productController) AllProducts(c echo.Context) error {
 
 	products, err := pc.svc.All()
 	if err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
@@ -61,7 +61,7 @@ func (pc *productController) AllProducts(c echo.Context) error {
 
 	rate, err := pc.getRate(currency)
 	if err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
@@ -84,7 +84,7 @@ func (pc *productController) FindProductByID(c echo.Context) error {
 
 	prod, err := pc.svc.FindByID(id)
 	if err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
@@ -95,7 +95,7 @@ func (pc *productController) FindProductByID(c echo.Context) error {
 
 	rate, err := pc.getRate(currency)
 	if err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 	pc.log.Infof("Currency Rate %+v", rate)
@@ -110,18 +110,18 @@ func (pc *productController) FindProductByID(c echo.Context) error {
 func (pc *productController) CreateProduct(c echo.Context) error {
 	prodCreateDto := dto.ProductDTO{}
 	if err := c.Bind(&prodCreateDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := c.Validate(prodCreateDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	err := pc.svc.Create(&prodCreateDto)
 	if err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
@@ -136,17 +136,17 @@ func (pc *productController) UpdateProduct(c echo.Context) error {
 		ID: id,
 	}
 	if err := c.Bind(&prodUpdateDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := c.Validate(prodUpdateDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := pc.svc.Update(&prodUpdateDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
@@ -162,7 +162,7 @@ func (pc *productController) DeleteProduct(c echo.Context) error {
 	}
 
 	if err := pc.svc.Delete(&prodUpdateDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 

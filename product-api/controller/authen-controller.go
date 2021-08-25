@@ -40,12 +40,12 @@ func (ac *authenController) Login(c echo.Context) error {
 	userLoginDto := dto.UserLogInDTO{}
 
 	if err := c.Bind(&userLoginDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := c.Validate(userLoginDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
@@ -55,7 +55,7 @@ func (ac *authenController) Login(c echo.Context) error {
 		return c.JSON(http.StatusAccepted, res)
 	}
 
-	res := helper.BuildErrorResponse("Fail", fmt.Errorf("Please check your credential"), nil)
+	res := helper.BuildErrorResponse("Fail", fmt.Errorf("Please check your credential").Error(), nil)
 	return c.JSON(http.StatusUnauthorized, res)
 }
 
@@ -63,17 +63,17 @@ func (ac *authenController) Register(c echo.Context) error {
 	userRegDto := dto.UserRegisterDTO{}
 
 	if err := c.Bind(&userRegDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := c.Validate(userRegDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := ac.authenService.CreateUser(&userRegDto); err != nil {
-		res := helper.BuildErrorResponse("Fail", err, nil)
+		res := helper.BuildErrorResponse("Fail", err.Error(), nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 

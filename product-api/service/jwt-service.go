@@ -30,8 +30,6 @@ type jwtCustomClaim struct {
 	jwt.StandardClaims
 }
 
-var CustomClaim *jwtCustomClaim
-
 func NewJWTService(deps JWTSerivceDeps) JWTSeriveI {
 	return &jwtService{
 		log:    deps.Log,
@@ -41,7 +39,7 @@ func NewJWTService(deps JWTSerivceDeps) JWTSeriveI {
 }
 
 func (svc *jwtService) GenerateToken(userID string) string {
-	CustomClaim = &jwtCustomClaim{
+	claim := jwtCustomClaim{
 		userID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(5 * time.Minute).Unix(),
@@ -49,7 +47,7 @@ func (svc *jwtService) GenerateToken(userID string) string {
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, CustomClaim)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 	t, err := token.SignedString([]byte(svc.secret))
 	if err != nil {
 		svc.log.Panic(err)

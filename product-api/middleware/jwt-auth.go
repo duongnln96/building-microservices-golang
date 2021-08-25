@@ -19,7 +19,7 @@ func AuthorizeJWT(svc service.JWTSeriveI) echo.MiddlewareFunc {
 
 			authHeader := c.Request().Header.Get("Authorization")
 			if authHeader == "" {
-				res := helper.BuildErrorResponse("Fail", fmt.Errorf("No token found"), nil)
+				res := helper.BuildErrorResponse("Fail", fmt.Errorf("No token found").Error(), nil)
 				return c.JSON(http.StatusBadRequest, res)
 			}
 
@@ -27,7 +27,7 @@ func AuthorizeJWT(svc service.JWTSeriveI) echo.MiddlewareFunc {
 			if token.Valid {
 				return next(c)
 			}
-			res := helper.BuildErrorResponse("Fail", fmt.Errorf("No token found %+v", err), nil)
+			res := helper.BuildErrorResponse("Fail", fmt.Errorf("No token found %+v", err).Error(), nil)
 			return c.JSON(http.StatusUnauthorized, res)
 		}
 	}
