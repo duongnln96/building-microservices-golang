@@ -10,14 +10,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// GenericError is a generic error message returned by a server
-type GenericError struct {
-	Message string `json:"message"`
-}
-
 type ProductServiceI interface {
-	All() (entity.Products, error)
-	FindByID(int) (*entity.Product, error)
+	All() ([]entity.Product, error)
+	FindByID(int) (entity.Product, error)
 	Create(*dto.ProductDTO) error
 	Update(*dto.ProductUpdateDTO) error
 	Delete(*dto.ProductUpdateDTO) error
@@ -26,13 +21,13 @@ type ProductServiceI interface {
 type ProductServiceDeps struct {
 	Ctx  context.Context
 	Log  *zap.SugaredLogger
-	Repo repository.ProductsDBI
+	Repo repository.ProductsRepoI
 }
 
 type productSerivce struct {
 	ctx  context.Context
 	log  *zap.SugaredLogger
-	repo repository.ProductsDBI
+	repo repository.ProductsRepoI
 }
 
 func NewProductSerivce(deps ProductServiceDeps) ProductServiceI {
@@ -43,22 +38,21 @@ func NewProductSerivce(deps ProductServiceDeps) ProductServiceI {
 	}
 }
 
-func (svc *productSerivce) All() (entity.Products, error) {
+func (svc *productSerivce) All() ([]entity.Product, error) {
 	prods, err := svc.repo.AllProducts()
 	if err != nil {
-		svc.log.Debugf("SVC cannot fetch products %+v", err)
+		svc.log.Debugf("SVC cannot fetch all products %+v", err)
 		return nil, err
 	}
 	return prods, nil
 }
 
-func (svc *productSerivce) FindByID(id int) (*entity.Product, error) {
+func (svc *productSerivce) FindByID(id int) (entity.Product, error) {
 	prod, err := svc.repo.FindProductByID(id)
 	if err != nil {
 		svc.log.Debugf("SVC cannot fetch product %+v", err)
-		return nil, err
+		return entity.Product{}, err
 	}
-
 	return prod, nil
 }
 

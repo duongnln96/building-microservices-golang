@@ -54,7 +54,7 @@ func NewPsqlConnector(deps PsqlConnectorDeps) PsqlConnectorI {
 		ctx:      deps.Ctx,
 		cfg:      deps.Cfg,
 		db:       db,
-		isOK:     false,
+		isOK:     true,
 		stopChan: make(chan bool),
 	}
 }

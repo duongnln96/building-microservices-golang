@@ -1,26 +1,23 @@
 package helper
 
 type Response struct {
-	Status  bool        `json:"status"`
-	Message string      `json:"message"`
-	Errors  error       `json:"error"`
-	Data    interface{} `json:"data"`
+	Status string      `json:"status"`
+	Errors error       `json:"error"`
+	Data   interface{} `json:"data"`
 }
 
-func BuildResponse(status bool, message string, data interface{}) Response {
+func BuildResponse(status string, data interface{}) Response {
 	return Response{
-		Status:  status,
-		Message: message,
-		Errors:  nil,
-		Data:    data,
+		Status: status,
+		Errors: nil,
+		Data:   data,
 	}
 }
 
-func BuildErrorResponse(message string, err error, data interface{}) Response {
+func BuildErrorResponse(status string, err error, data interface{}) Response {
 	return Response{
-		Status:  false,
-		Message: message,
-		Errors:  err,
-		Data:    data,
+		Status: status,
+		Errors: err,
+		Data:   data,
 	}
 }

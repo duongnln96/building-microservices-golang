@@ -2,99 +2,95 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"time"
+	"database/sql"
 
 	"github.com/duongnln96/building-microservices-golang/product-api/entity"
 	tools "github.com/duongnln96/building-microservices-golang/product-api/tools/postgresql"
 	"go.uber.org/zap"
 )
 
-type ProductsDBI interface {
-	AllProducts() (entity.Products, error)
-	FindProductByID(int) (*entity.Product, error)
+type ProductsRepoI interface {
+	AllProducts() ([]entity.Product, error)
+	FindProductByID(int) (entity.Product, error)
 	CreateProduct(*entity.Product) error
 	UpdateProduct(*entity.Product) error
 	DeleteProduct(*entity.Product) error
 }
 
-type ProductsDBDeps struct {
+type ProductsRepoDeps struct {
 	Log *zap.SugaredLogger
 	Ctx context.Context
 	DB  tools.PsqlConnectorI
 }
 
-type productsDB struct {
+type productsRepo struct {
 	log *zap.SugaredLogger
 	ctx context.Context
 	db  tools.PsqlConnectorI
 }
 
-func NewProductDB(deps ProductsDBDeps) ProductsDBI {
-	return &productsDB{
+func NewProductDB(deps ProductsRepoDeps) ProductsRepoI {
+	return &productsRepo{
 		log: deps.Log,
 		ctx: deps.Ctx,
 		db:  deps.DB,
 	}
 }
 
-var ErrProductNotFound error = fmt.Errorf("Product not found")
-
-func (db *productsDB) AllProducts() (entity.Products, error) {
-	return entity.ProductList, nil
+func (pr *productsRepo) AllProducts() ([]entity.Product, error) {
+	products := make([]entity.Product, 0)
+	err := pr.db.DBQueryRows(
+		func(r *sql.Rows) bool {
+			prod := entity.Product{}
+			err := r.Scan(&prod.ID, &prod.Name, &prod.Description, &prod.Price, &prod.SKU)
+			if err != nil {
+				return false
+			}
+			products = append(products, prod)
+			return true
+		},
+		"select id, name, description, price, sku from products;",
+	)
+	return products, err
 }
 
-func (db *productsDB) FindProductByID(id int) (*entity.Product, error) {
-	idx := db.findProductIndex(id)
-	if idx == -1 {
-		return nil, ErrProductNotFound
-	}
+func (pr *productsRepo) FindProductByID(id int) (entity.Product, error) {
+	prod := entity.Product{}
+	err := pr.db.DBQueryRow(
+		func(r *sql.Row) error {
+			if err := r.Scan(&prod.ID, &prod.Name, &prod.Description, &prod.Price, &prod.SKU); err != nil {
+				return err
+			}
+			return nil
+		},
+		"select id, name, description, price, sku from products where id=$1;",
+		id,
+	)
 
-	return entity.ProductList[idx], nil
+	return prod, err
 }
 
-func (db *productsDB) CreateProduct(p *entity.Product) error {
-	p.ID = db.getNextId()
-	p.CreatedOn = time.Now().UTC().String()
-	p.UpdatedOn = time.Now().UTC().String()
-	entity.ProductList = append(entity.ProductList, p)
-
-	return nil
+func (pr *productsRepo) CreateProduct(p *entity.Product) error {
+	err := pr.db.DBExec(
+		"insert into products (name, description, price, sku) values ($1, $2, $3, $4);",
+		p.Name, p.Description, p.Price, p.SKU,
+	)
+	return err
 }
 
-func (db *productsDB) UpdateProduct(p *entity.Product) error {
-	idx := db.findProductIndex(p.ID)
-	if idx == -1 {
-		return ErrProductNotFound
-	}
-	oldProd := entity.ProductList[idx]
-	p.CreatedOn = oldProd.CreatedOn
-	p.UpdatedOn = time.Now().UTC().String()
-	entity.ProductList[idx] = p
+func (pr *productsRepo) UpdateProduct(p *entity.Product) error {
+	err := pr.db.DBExec(
+		"update products set name=$1, description=$2, price=$3, sku=$4 where id=$5;",
+		p.Name, p.Description, p.Price, p.SKU, p.ID,
+	)
 
-	return nil
+	return err
 }
 
-func (db *productsDB) DeleteProduct(p *entity.Product) error {
-	idx := db.findProductIndex(p.ID)
-	if idx == -1 {
-		return ErrProductNotFound
-	}
-
-	entity.ProductList = append(entity.ProductList[:idx], entity.ProductList[idx+1:]...)
-	return nil
-}
-
-func (db *productsDB) findProductIndex(id int) int {
-	for i, p := range entity.ProductList {
-		if p.ID == id {
-			return i
-		}
-	}
-	return -1
-}
-
-func (db *productsDB) getNextId() int {
-	lp := entity.ProductList[len(entity.ProductList)-1]
-	return lp.ID + 1
+func (pr *productsRepo) DeleteProduct(p *entity.Product) error {
+	err := pr.db.DBExec(
+		"delete from products where id=$1",
+		p.ID,
+	)
+	return err
 }

@@ -50,31 +50,31 @@ func (pc *productController) AllProducts(c echo.Context) error {
 
 	products, err := pc.svc.All()
 	if err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	if currency == "" {
-		res := helper.BuildResponse(true, "OK", products)
+		res := helper.BuildResponse("OK", products)
 		return c.JSON(http.StatusOK, res)
 	}
 
 	rate, err := pc.getRate(currency)
 	if err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	pc.log.Infof("Currency Rate %+v", rate)
 
-	prodsWithRate := entity.Products{}
+	prodsWithRate := make([]entity.Product, 0)
 	for _, prod := range products {
-		newProd := *prod
+		newProd := prod
 		newProd.Price = newProd.Price * rate
-		prodsWithRate = append(prodsWithRate, &newProd)
+		prodsWithRate = append(prodsWithRate, newProd)
 	}
 
-	res := helper.BuildResponse(true, "OK", prodsWithRate)
+	res := helper.BuildResponse("OK", prodsWithRate)
 	return c.JSON(http.StatusOK, res)
 }
 
@@ -84,48 +84,48 @@ func (pc *productController) FindProductByID(c echo.Context) error {
 
 	prod, err := pc.svc.FindByID(id)
 	if err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if currency == "" {
-		res := helper.BuildResponse(true, "OK", prod)
+		res := helper.BuildResponse("OK", prod)
 		return c.JSON(http.StatusOK, res)
 	}
 
 	rate, err := pc.getRate(currency)
 	if err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 	pc.log.Infof("Currency Rate %+v", rate)
 
-	prodWithRate := *prod
+	prodWithRate := prod
 	prodWithRate.Price = prodWithRate.Price * rate
 
-	res := helper.BuildResponse(true, "OK", prodWithRate)
+	res := helper.BuildResponse("OK", prodWithRate)
 	return c.JSON(http.StatusOK, res)
 }
 
 func (pc *productController) CreateProduct(c echo.Context) error {
 	prodCreateDto := dto.ProductDTO{}
 	if err := c.Bind(&prodCreateDto); err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := c.Validate(prodCreateDto); err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	err := pc.svc.Create(&prodCreateDto)
 	if err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	res := helper.BuildResponse(true, "OK", prodCreateDto)
+	res := helper.BuildResponse("OK", prodCreateDto)
 	return c.JSON(http.StatusOK, res)
 }
 
@@ -136,21 +136,21 @@ func (pc *productController) UpdateProduct(c echo.Context) error {
 		ID: id,
 	}
 	if err := c.Bind(&prodUpdateDto); err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := c.Validate(prodUpdateDto); err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	if err := pc.svc.Update(&prodUpdateDto); err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	res := helper.BuildResponse(true, "OK", prodUpdateDto)
+	res := helper.BuildResponse("OK", prodUpdateDto)
 	return c.JSON(http.StatusOK, res)
 }
 
@@ -162,11 +162,11 @@ func (pc *productController) DeleteProduct(c echo.Context) error {
 	}
 
 	if err := pc.svc.Delete(&prodUpdateDto); err != nil {
-		res := helper.BuildErrorResponse("Not OK", err, nil)
+		res := helper.BuildErrorResponse("Fail", err, nil)
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	res := helper.BuildResponse(true, "OK", nil)
+	res := helper.BuildResponse("OK", nil)
 	return c.JSON(http.StatusOK, res)
 }
 

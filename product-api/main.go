@@ -66,9 +66,11 @@ func main() {
 			Cfg: appConfig.Psql,
 		},
 	)
+	psql.Start()
+	defer psql.Close()
 
 	repo := repository.NewProductDB(
-		repository.ProductsDBDeps{
+		repository.ProductsRepoDeps{
 			Log: log,
 			Ctx: globalContex,
 			DB:  psql,
