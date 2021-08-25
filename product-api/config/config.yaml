@@ -3,6 +3,8 @@ productapi:
   port: 8080
   readtimeout: 10ms
   writetimeout: 600ms
+  jwt_sercet: "duong"
+  use_jwt: true
 
 currency:
   host: "currency"

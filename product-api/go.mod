@@ -3,6 +3,7 @@ module github.com/duongnln96/building-microservices-golang/product-api
 go 1.15
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/duongnln96/building-microservices-golang/currency v0.0.0-20210815084925-09ff203674b8
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator v9.31.0+incompatible

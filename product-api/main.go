@@ -69,35 +69,37 @@ func main() {
 	psql.Start()
 	defer psql.Close()
 
-	repo := repository.NewProductRepo(
-		repository.ProductsRepoDeps{
+	repositories := repository.NewRepositories(
+		repository.RepositoriesDeps{
 			Log: log,
 			DB:  psql,
 		},
 	)
 
-	service := service.NewProductSerivce(
-		service.ProductServiceDeps{
+	services := service.NewServices(
+		service.ServicesDeps{
 			Log:  log,
-			Repo: repo,
+			Cfg:  appConfig.Server,
+			Repo: *repositories,
 		},
 	)
 
-	controller := controller.NewProductController(
-		controller.ProductControllerDeps{
-			Log: log,
-			Ctx: globalContex,
-			Svc: service,
-			Cc:  currency,
+	controllers := controller.NewControllers(
+		controller.ControllersDeps{
+			Log:      log,
+			Ctx:      globalContex,
+			Currency: currency,
+			Svcs:     *services,
 		},
 	)
 
 	e := echoRouter()
 	router := routes.NewProductRouter(
 		routes.ProductRouterDeps{
-			Log:    log,
-			Router: e,
-			Ctrler: controller,
+			Log:         log,
+			Router:      e,
+			Controllers: controllers,
+			JwtService:  services.JWTSvc,
 		},
 	)
 

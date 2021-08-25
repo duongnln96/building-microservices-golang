@@ -13,6 +13,8 @@ type ServerConfig struct {
 	Port         int           `mapstructure:"port"`
 	ReadTimeout  time.Duration `mapstructure:"readtimeout"`
 	WriteTimeout time.Duration `mapstructure:"writetimeout"`
+	JwtSecret    string        `mapstructure:"jwt_sercet"`
+	UseJwt       bool          `mapstructure:"use_jwt"`
 }
 
 type CurrencyService struct {
