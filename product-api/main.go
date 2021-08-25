@@ -69,10 +69,9 @@ func main() {
 	psql.Start()
 	defer psql.Close()
 
-	repo := repository.NewProductDB(
+	repo := repository.NewProductRepo(
 		repository.ProductsRepoDeps{
 			Log: log,
-			Ctx: globalContex,
 			DB:  psql,
 		},
 	)
@@ -80,7 +79,6 @@ func main() {
 	service := service.NewProductSerivce(
 		service.ProductServiceDeps{
 			Log:  log,
-			Ctx:  globalContex,
 			Repo: repo,
 		},
 	)

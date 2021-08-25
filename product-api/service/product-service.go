@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/duongnln96/building-microservices-golang/product-api/dto"
 	"github.com/duongnln96/building-microservices-golang/product-api/entity"
 	"github.com/duongnln96/building-microservices-golang/product-api/repository"
@@ -19,20 +17,17 @@ type ProductServiceI interface {
 }
 
 type ProductServiceDeps struct {
-	Ctx  context.Context
 	Log  *zap.SugaredLogger
 	Repo repository.ProductsRepoI
 }
 
 type productSerivce struct {
-	ctx  context.Context
 	log  *zap.SugaredLogger
 	repo repository.ProductsRepoI
 }
 
 func NewProductSerivce(deps ProductServiceDeps) ProductServiceI {
 	return &productSerivce{
-		ctx:  deps.Ctx,
 		log:  deps.Log,
 		repo: deps.Repo,
 	}

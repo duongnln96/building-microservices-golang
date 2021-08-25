@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"database/sql"
 
 	"github.com/duongnln96/building-microservices-golang/product-api/entity"
@@ -19,20 +18,17 @@ type ProductsRepoI interface {
 
 type ProductsRepoDeps struct {
 	Log *zap.SugaredLogger
-	Ctx context.Context
 	DB  tools.PsqlConnectorI
 }
 
 type productsRepo struct {
 	log *zap.SugaredLogger
-	ctx context.Context
 	db  tools.PsqlConnectorI
 }
 
-func NewProductDB(deps ProductsRepoDeps) ProductsRepoI {
+func NewProductRepo(deps ProductsRepoDeps) ProductsRepoI {
 	return &productsRepo{
 		log: deps.Log,
-		ctx: deps.Ctx,
 		db:  deps.DB,
 	}
 }
