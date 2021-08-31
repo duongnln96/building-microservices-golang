@@ -30,18 +30,45 @@ type ProductControllerDeps struct {
 }
 
 type productController struct {
-	ctx context.Context
-	log *zap.SugaredLogger
-	svc service.ProductServiceI
-	cc  protos.CurrencyClient
+	ctx   context.Context
+	log   *zap.SugaredLogger
+	svc   service.ProductServiceI
+	cc    protos.CurrencyClient
+	ccSub protos.Currency_SubscribeRatesClient
+	rates map[string]float64
 }
 
 func NewProductController(deps ProductControllerDeps) ProductControllerI {
-	return &productController{
-		ctx: deps.Ctx,
-		log: deps.Log,
-		svc: deps.Svc,
-		cc:  deps.Cc,
+	pc := productController{
+		ctx:   deps.Ctx,
+		log:   deps.Log,
+		svc:   deps.Svc,
+		cc:    deps.Cc,
+		ccSub: nil,
+		rates: make(map[string]float64),
+	}
+	go pc.handleRateUpdateStream()
+	return &pc
+}
+
+func (pc *productController) handleRateUpdateStream() {
+	sub, err := pc.cc.SubscribeRates(pc.ctx)
+	if err != nil {
+		pc.log.Error("Unable to subscribe for rates", "error", err)
+	}
+
+	pc.ccSub = sub
+
+	for {
+		rateRcv, err := pc.ccSub.Recv()
+		pc.log.Info("Recieved updated rate from server", "dest", rateRcv.GetDestination().String())
+		if err != nil {
+			pc.log.Error("Error receiving message", "error", err)
+			return
+		}
+
+		// Update to mem-cached
+		pc.rates[rateRcv.Destination.String()] = rateRcv.Rate
 	}
 }
 
@@ -189,11 +216,20 @@ func (pc *productController) getProductQuery(c echo.Context) string {
 
 // getRate return currency rate from currency client
 func (pc *productController) getRate(currency string) (float64, error) {
+	// if cached return
+	if r, ok := pc.rates[currency]; ok {
+		return r, nil
+	}
+
 	rateRequest := protos.RateRequest{
 		Base:        protos.Currencies(protos.Currencies_value["EUR"]),
 		Destination: protos.Currencies(protos.Currencies_value[currency]),
 	}
 
 	rate, err := pc.cc.GetRate(pc.ctx, &rateRequest)
+	pc.rates[currency] = rate.Rate
+
+	pc.ccSub.Send(&rateRequest)
+
 	return float64(rate.Rate), err
 }
