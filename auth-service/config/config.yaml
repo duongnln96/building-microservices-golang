@@ -1,0 +1,16 @@
+authservice:
+  host: "authservice"
+  port: 8082
+  readtimeout: 10ms
+  writetimeout: 600ms
+  jwt_sercet: "duong"
+  use_jwt: true
+
+psql:
+  host: "psql"
+  port: 5432
+  username: postgres
+  password: postgres
+  dbname: users
+  querytimeout: 1s
+  healthcheck_interval: 5s
