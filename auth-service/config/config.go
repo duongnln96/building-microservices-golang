@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/duongnln96/building-microservices-golang/auth-service/tools/postgresql"
+	"github.com/duongnln96/building-microservices-golang/auth-service/tools/mongodb"
 	"github.com/spf13/viper"
 )
 
@@ -18,8 +18,8 @@ type AuthServiceConfig struct {
 }
 
 type AppConfig struct {
-	PsqlConfig postgresql.PsqlConfig `mapstructure:"psql"`
-	AuthConfig AuthServiceConfig     `mapstructure:"authservice"`
+	MongoDBConfig mongodb.MongoDBConfig `mapstructure:"mongodb"`
+	AuthConfig    AuthServiceConfig     `mapstructure:"authservice"`
 }
 
 var values AppConfig
