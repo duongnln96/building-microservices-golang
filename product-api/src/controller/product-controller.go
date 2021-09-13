@@ -6,10 +6,11 @@ import (
 	"strconv"
 
 	protos "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
-	"github.com/duongnln96/building-microservices-golang/product-api/dto"
-	"github.com/duongnln96/building-microservices-golang/product-api/entity"
-	"github.com/duongnln96/building-microservices-golang/product-api/helper"
-	"github.com/duongnln96/building-microservices-golang/product-api/service"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/domain/dto"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/domain/entity"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/service"
+	"github.com/duongnln96/building-microservices-golang/product-api/tools/helper"
+
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

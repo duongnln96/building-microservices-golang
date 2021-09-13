@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/duongnln96/building-microservices-golang/product-api/controller"
-	"github.com/duongnln96/building-microservices-golang/product-api/service"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/controller"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/service"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
