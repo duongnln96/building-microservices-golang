@@ -12,24 +12,24 @@ type ProductRouterI interface {
 }
 
 type ProductRouterDeps struct {
-	Log         *zap.SugaredLogger
-	Router      *echo.Echo
-	Controllers *controller.Controllers
-	JwtService  service.JWTSeriveI
+	Log        *zap.SugaredLogger
+	Router     *echo.Echo
+	Controller controller.ProductControllerI
+	JwtService service.JWTSeriveI
 }
 
 type productRouter struct {
-	log         *zap.SugaredLogger
-	router      *echo.Echo
-	controllers *controller.Controllers
-	jwtService  service.JWTSeriveI
+	log        *zap.SugaredLogger
+	router     *echo.Echo
+	controller controller.ProductControllerI
+	jwtService service.JWTSeriveI
 }
 
 func NewProductRouter(deps ProductRouterDeps) ProductRouterI {
 	return &productRouter{
-		log:         deps.Log,
-		router:      deps.Router,
-		controllers: deps.Controllers,
-		jwtService:  deps.JwtService,
+		log:        deps.Log,
+		router:     deps.Router,
+		controller: deps.Controller,
+		jwtService: deps.JwtService,
 	}
 }

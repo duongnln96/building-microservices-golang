@@ -83,6 +83,7 @@ github.com/duongnln96/building-microservices-golang v0.0.0-20210812171134-7fe2c5
 github.com/duongnln96/building-microservices-golang v0.0.0-20210815052231-c69fe7c93885 h1:GUszWGRbmKlA+nhk8Bu7A2f5bRIt00F9+sC/ooetP+s=
 github.com/duongnln96/building-microservices-golang v0.0.0-20210815084925-09ff203674b8 h1:csCuNoL5y5DzgrWSsdtUotEMRrj/Q8suzBKSw0ET8tg=
 github.com/duongnln96/building-microservices-golang v0.0.0-20210815142154-a365d2c8b217 h1:EEgTVsNrONMmUdWzNq9lZDDe1EJ6euSHQnVlUGkJzz0=
+github.com/duongnln96/building-microservices-golang v0.0.0-20210913144357-b1252a54a163 h1:3DFPYXU0fqO81eZe6zdBwjW6pigEtoUGSHVVjjajOUY=
 github.com/duongnln96/building-microservices-golang/currency v0.0.0-20210812171134-7fe2c5dfdbe0 h1:BCd95rJdC9RJbDaCj43XO0MsrVzcfRxIRdy1itYGL6w=
 github.com/duongnln96/building-microservices-golang/currency v0.0.0-20210812171134-7fe2c5dfdbe0/go.mod h1:Sxw0a9RvavY9j+ak9UThIwJHVaue9XbD/34nFvybaaM=
 github.com/duongnln96/building-microservices-golang/currency v0.0.0-20210815052231-c69fe7c93885 h1:4YWmh37jsq2j+MuuCnuoWYgnInKaGqAhV+6McDxNoFw=

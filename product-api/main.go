@@ -9,11 +9,11 @@ import (
 
 	protos "github.com/duongnln96/building-microservices-golang/currency/protos/currency"
 	"github.com/duongnln96/building-microservices-golang/product-api/config"
-	"github.com/duongnln96/building-microservices-golang/product-api/controller"
 	"github.com/duongnln96/building-microservices-golang/product-api/middleware"
-	"github.com/duongnln96/building-microservices-golang/product-api/repository"
-	"github.com/duongnln96/building-microservices-golang/product-api/routes"
-	"github.com/duongnln96/building-microservices-golang/product-api/service"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/controller"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/domain/repository"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/routes"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/service"
 	tools "github.com/duongnln96/building-microservices-golang/product-api/tools/postgresql"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -69,37 +69,35 @@ func main() {
 	psql.Start()
 	defer psql.Close()
 
-	repositories := repository.NewRepositories(
-		repository.RepositoriesDeps{
-			Log: log,
-			DB:  psql,
-		},
-	)
+	repo := repository.NewProductRepo(repository.ProductsRepoDeps{
+		Log: log,
+		DB:  psql,
+	})
 
-	services := service.NewServices(
-		service.ServicesDeps{
-			Log:  log,
-			Cfg:  appConfig.Server,
-			Repo: *repositories,
-		},
-	)
+	jwtsvc := service.NewJWTService(service.JWTSerivceDeps{
+		Log: log,
+		Cfg: appConfig.Server,
+	})
 
-	controllers := controller.NewControllers(
-		controller.ControllersDeps{
-			Log:      log,
-			Ctx:      globalContex,
-			Currency: currency,
-			Svcs:     *services,
-		},
-	)
+	prosvc := service.NewProductSerivce(service.ProductServiceDeps{
+		Log:  log,
+		Repo: repo,
+	})
+
+	controller := controller.NewProductController(controller.ProductControllerDeps{
+		Ctx: globalContex,
+		Log: log,
+		Svc: prosvc,
+		Cc:  currency,
+	})
 
 	e := echoRouter()
 	router := routes.NewProductRouter(
 		routes.ProductRouterDeps{
-			Log:         log,
-			Router:      e,
-			Controllers: controllers,
-			JwtService:  services.JWTSvc,
+			Log:        log,
+			Router:     e,
+			Controller: controller,
+			JwtService: jwtsvc,
 		},
 	)
 

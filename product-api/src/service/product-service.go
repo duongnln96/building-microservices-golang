@@ -1,10 +1,9 @@
 package service
 
 import (
-	"github.com/duongnln96/building-microservices-golang/product-api/dto"
-	"github.com/duongnln96/building-microservices-golang/product-api/entity"
-	"github.com/duongnln96/building-microservices-golang/product-api/repository"
-
+	"github.com/duongnln96/building-microservices-golang/product-api/src/domain/dto"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/domain/entity"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/domain/repository"
 	"go.uber.org/zap"
 )
 

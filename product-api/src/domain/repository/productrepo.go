@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/duongnln96/building-microservices-golang/product-api/entity"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/domain/entity"
 	tools "github.com/duongnln96/building-microservices-golang/product-api/tools/postgresql"
 	"go.uber.org/zap"
 )

@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/duongnln96/building-microservices-golang/product-api/config"
-	"github.com/duongnln96/building-microservices-golang/product-api/helper"
-	"github.com/duongnln96/building-microservices-golang/product-api/service"
+	"github.com/duongnln96/building-microservices-golang/product-api/src/service"
+	"github.com/duongnln96/building-microservices-golang/product-api/tools/helper"
 	"github.com/labstack/echo/v4"
 )
 
