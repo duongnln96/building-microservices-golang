@@ -7,19 +7,10 @@ authservice:
   db_collection: authinfo
 
 mongodb:
-  host: "localhost"
+  host: "mongo"
   port: 27017
   username: admin
   password: admin
   dbname: users
   querytimeout: 5s
   healthcheck_interval: 5s
-
-# psql:
-#   host: "psql"
-#   port: 5432
-#   username: postgres
-#   password: postgres
-#   dbname: users
-#   querytimeout: 1s
-#   healthcheck_interval: 5s
