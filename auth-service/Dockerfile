@@ -10,6 +10,6 @@ COPY . ./
 
 RUN go build .
 
-EXPOSE 8080
+EXPOSE 8082
 
 CMD ["go", "run", "."]

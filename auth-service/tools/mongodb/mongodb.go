@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,7 +13,7 @@ import (
 type MongoDBConnectorI interface {
 	Start()
 	Stop() error
-	OpenCollection(string) *mongo.Collection
+	OpenCollection(string) (*mongo.Collection, error)
 }
 
 type MongoDBConnectorDeps struct {
@@ -91,6 +92,9 @@ func (mc *mongodbConnector) Stop() error {
 	return nil
 }
 
-func (mc *mongodbConnector) OpenCollection(collectionName string) *mongo.Collection {
-	return mc.conn.Database(mc.cfg.DBName).Collection(collectionName)
+func (mc *mongodbConnector) OpenCollection(collectionName string) (*mongo.Collection, error) {
+	if !mc.connIsOK() {
+		return nil, fmt.Errorf("The connection to mongodb is not ok")
+	}
+	return mc.conn.Database(mc.cfg.DBName).Collection(collectionName), nil
 }

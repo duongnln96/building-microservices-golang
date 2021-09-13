@@ -4,7 +4,7 @@ authservice:
   readtimeout: 10ms
   writetimeout: 600ms
   jwt_sercet: "duong"
-  use_jwt: true
+  db_collection: authinfo
 
 mongodb:
   host: "localhost"

@@ -14,7 +14,7 @@ type AuthServiceConfig struct {
 	ReadTimeout  time.Duration `mapstructure:"readtimeout"`
 	WriteTimeout time.Duration `mapstructure:"writetimeout"`
 	JWTSercet    string        `mapstructure:"jwt_sercet"`
-	UseJWT       bool          `mapstructure:"use_jwt"`
+	DBCollection string        `mapstructure:"db_collection"`
 }
 
 type AppConfig struct {
